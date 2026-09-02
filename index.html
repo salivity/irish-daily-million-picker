@@ -1,0 +1,2237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Irish Daily Million Lottery Picker & Combinations Generator - salivity.github.io</title>
+  <meta name="description" content="Generate Irish Daily Million straight lines and combinations (1-5 numbers) with real probability odds, cumulative winning chances, draw checker, and JSON state persistence." />
+  <link rel="canonical" href="https://salivity.github.io/irish-daily-million-picker/index.html" />
+  <link rel="icon" href="/irish-daily-million-picker/favicon.ico">
+  <link rel="manifest" href="/irish-daily-million-picker/pwa/manifest.json" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Irish Daily Million Lottery Picker & Combinations Generator - salivity.github.io" />
+  <meta property="og:description" content="Generate Irish Daily Million straight lines and combinations (1-5 numbers) with real probability odds, cumulative winning chances, draw checker, and JSON state persistence." />
+  <meta property="og:url" content="https://salivity.github.io/irish-daily-million-picker/index.html" />
+  <meta property="og:image:url" content="https://salivity.github.io/irish-daily-million-picker/images/open-graph/default.webp" />
+  <meta property="og:image:secure_url" content="https://salivity.github.io/irish-daily-million-picker/images/open-graph/default.webp" />
+  <meta property="og:image:width" content="1120" />
+  <meta property="og:image:height" content="630" />
+
+  <style>
+    @font-face {
+      font-family: 'IBM Plex Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/irish-daily-million-picker/font/woff2/IBMPlexSans-Regular.woff2') format('woff2'),
+           url('/irish-daily-million-picker/font/ttf/IBMPlexSans-Regular.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'IBM Plex Mono';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/irish-daily-million-picker/font/woff2/IBMPlexMono-Regular.woff2') format('woff2'),
+           url('/irish-daily-million-picker/font/ttf/IBMPlexMono-Regular.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'Material Symbols Outlined';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/irish-daily-million-picker/font/woff2/MaterialSymbolsOutlined-Regular.woff2') format('woff2'),
+           url('/irish-daily-million-picker/font/ttf/MaterialSymbolsOutlined-Regular.ttf') format('truetype');
+    }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    code, pre, .font-mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    /* Ball Animations & Glows */
+    @keyframes ballDrop {
+      0% { transform: translateY(-30px) scale(0.7); opacity: 0; }
+      60% { transform: translateY(6px) scale(1.08); opacity: 1; }
+      80% { transform: translateY(-2px) scale(0.98); }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    @keyframes winnerPulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.6); }
+      50% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.9), inset 0 0 14px rgba(255, 255, 255, 0.9); }
+    }
+    .animate-ball {
+      animation: ballDrop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .lottery-ball {
+      background: radial-gradient(circle at 35% 30%, #ffffff 0%, #059669 45%, #064e3b 100%);
+      box-shadow: inset -2px -3px 6px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .lottery-ball-gold {
+      background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d97706 45%, #78350f 100%);
+      box-shadow: inset -2px -3px 6px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .lottery-ball-blue {
+      background: radial-gradient(circle at 35% 30%, #ffffff 0%, #2563eb 45%, #1e3a8a 100%);
+      box-shadow: inset -2px -3px 6px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .lottery-ball-red {
+      background: radial-gradient(circle at 35% 30%, #ffffff 0%, #dc2626 45%, #7f1d1d 100%);
+      box-shadow: inset -2px -3px 6px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .lottery-ball-purple {
+      background: radial-gradient(circle at 35% 30%, #ffffff 0%, #7c3aed 45%, #4c1d95 100%);
+      box-shadow: inset -2px -3px 6px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .lottery-ball-bonus {
+      background: radial-gradient(circle at 35% 30%, #ffffff 0%, #ea580c 45%, #7c2d12 100%);
+      box-shadow: inset -2px -3px 6px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .ball-hit {
+      position: relative;
+      ring-width: 3px;
+      outline: 3px solid #10b981;
+      outline-offset: 2px;
+      animation: winnerPulse 2s infinite ease-in-out;
+    }
+    .ball-hit::after {
+      content: '✓';
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      background: #10b981;
+      color: #022c22;
+      font-size: 10px;
+      font-weight: 900;
+      width: 16px;
+      height: 16px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .ball-bonus-hit {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+    }
+    .ball-bonus-hit::after {
+      content: '★';
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      background: #f59e0b;
+      color: #451a03;
+      font-size: 10px;
+      font-weight: 900;
+      width: 16px;
+      height: 16px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .winner-row-glow {
+      border-color: rgba(16, 185, 129, 0.7) !important;
+      background: linear-gradient(90deg, rgba(6, 78, 59, 0.4) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    }
+  </style>
+  <script src="/irish-daily-million-picker/js/tailwindcss/3.4.17.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-900">
+
+  <header class="bg-slate-800/90 border-b border-slate-700/80 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="hidden md:block">
+            <img src="/irish-daily-million-picker/images/logo/light.svg" width="32" height="32" />
+        </div>
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight">
+                <a href="/irish-daily-million-picker/index.html" class="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2">
+                    Irish Daily Million Lottery Picker
+                </a>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">Straight lines & combinations generator with cumulative win chances & results checker.</p>
+        </div>
+
+      <!-- Main Navigation -->
+      <nav aria-label="Main Navigation">
+        <ul class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <li>
+            <button id="nav-tab-straight" onclick="switchMainTab('straight')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-emerald-600 text-white shadow-sm flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-base">shuffle</span> Straight Lines
+            </button>
+          </li>
+          <li>
+            <button id="nav-tab-combos" onclick="switchMainTab('combos')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-base">grain</span> Combinations
+            </button>
+          </li>
+          <li>
+            <button id="nav-tab-checker" onclick="switchMainTab('checker')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-base">verified</span> Results Checker
+              <span id="checkerActiveIndicator" class="hidden w-2 h-2 rounded-full bg-amber-400"></span>
+            </button>
+          </li>
+          <li>
+            <button id="nav-tab-pools" onclick="switchMainTab('pools')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-base">checklist</span> Number Pools
+            </button>
+          </li>
+          <li>
+            <button id="nav-tab-state" onclick="switchMainTab('state')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-base">data_object</span> JSON State
+            </button>
+          </li>
+          <li>
+            <button id="soundToggleBtn" onclick="toggleAudio()" class="px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-slate-700 hover:bg-slate-600 text-slate-300 flex items-center" title="Toggle Sound FX">
+              <span id="soundIcon" class="material-symbols-outlined text-base">volume_up</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Notification / Message Toast -->
+    <div id="toastMessage" class="hidden fixed bottom-5 right-5 z-50 bg-slate-800 border border-emerald-500/50 text-emerald-300 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-opacity duration-300">
+      <span class="material-symbols-outlined text-emerald-400 text-xl">check_circle</span>
+      <span id="toastText" class="text-sm font-medium">Action completed successfully.</span>
+    </div>
+
+    <!-- Active Checker Banner Bar (When winning numbers are entered) -->
+    <div id="activeCheckerBanner" class="hidden bg-gradient-to-r from-slate-900 via-amber-950/40 to-slate-900 border border-amber-500/40 rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-xl">fact_check</span>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
+            Winning Numbers Check Active
+            <span class="inline-block px-2 py-0.2 bg-amber-500/20 text-amber-300 rounded text-[10px] font-mono" id="bannerDrawModeLabel">6-Ball Draw</span>
+          </div>
+          <div class="flex items-center gap-1.5 mt-1 flex-wrap" id="bannerWinningBallsContainer">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button onclick="switchMainTab('checker')" class="px-3 py-1.5 bg-amber-600/80 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-xs transition flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm">edit</span> Edit Draw Numbers
+        </button>
+        <button onclick="clearWinningNumbers()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 rounded-lg text-xs transition flex items-center gap-1" title="Clear Winning Numbers">
+          <span class="material-symbols-outlined text-sm">close</span> Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Draw Engine Mode Selector & Quick Odds Reference Bar -->
+    <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 shadow-lg backdrop-blur">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <span class="material-symbols-outlined">calculate</span>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-wider">Lottery Draw Reference (1–39 Pool)</h2>
+            <p class="text-xs text-slate-400">Irish Daily Million draws 6 main balls + 1 bonus ball twice daily (2:00 PM & 9:00 PM).</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-700 flex items-center gap-2 text-xs">
+            <span class="text-slate-400">Target Draw Mode:</span>
+            <label class="inline-flex items-center cursor-pointer">
+              <input type="radio" name="drawMode" value="main6" checked onchange="updateDrawMode(this.value)" class="text-emerald-500 focus:ring-0">
+              <span class="ml-1.5 font-medium text-slate-200">6-Ball (Main Only)</span>
+            </label>
+            <label class="inline-flex items-center cursor-pointer ml-2">
+              <input type="radio" name="drawMode" value="bonus7" onchange="updateDrawMode(this.value)" class="text-emerald-500 focus:ring-0">
+              <span class="ml-1.5 font-medium text-slate-200">7-Ball (6 + Bonus)</span>
+            </label>
+          </div>
+          <button onclick="resetAllDefaults()" class="px-3 py-1.5 bg-slate-700/80 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-medium transition flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">restart_alt</span> Reset Defaults
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Odds Summary Matrix -->
+      <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 text-center text-xs">
+        <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
+          <div class="text-slate-400 font-medium">1 Number (Single)</div>
+          <div id="odds-matrix-1" class="text-emerald-400 font-bold text-sm mt-0.5 font-mono">1 in 6.5 (15.38%)</div>
+          <div class="text-[10px] text-slate-500">True mathematical chance</div>
+        </div>
+        <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
+          <div class="text-slate-400 font-medium">2 Numbers (Double)</div>
+          <div id="odds-matrix-2" class="text-emerald-400 font-bold text-sm mt-0.5 font-mono">1 in 49.4 (2.02%)</div>
+          <div class="text-[10px] text-slate-500">True mathematical chance</div>
+        </div>
+        <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
+          <div class="text-slate-400 font-medium">3 Numbers (Treble)</div>
+          <div id="odds-matrix-3" class="text-emerald-400 font-bold text-sm mt-0.5 font-mono">1 in 457.0 (0.219%)</div>
+          <div class="text-[10px] text-slate-500">True mathematical chance</div>
+        </div>
+        <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
+          <div class="text-slate-400 font-medium">4 Numbers (4-Fold)</div>
+          <div id="odds-matrix-4" class="text-emerald-400 font-bold text-sm mt-0.5 font-mono">1 in 5,483.4 (0.018%)</div>
+          <div class="text-[10px] text-slate-500">True mathematical chance</div>
+        </div>
+        <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50 col-span-2 sm:col-span-1">
+          <div class="text-slate-400 font-medium">5 Numbers (5-Fold)</div>
+          <div id="odds-matrix-5" class="text-emerald-400 font-bold text-sm mt-0.5 font-mono">1 in 95,959.5 (0.001%)</div>
+          <div class="text-[10px] text-slate-500">True mathematical chance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Straight Lines Tab -->
+    <div id="tab-content-straight" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Controls Panel -->
+        <div class="lg:col-span-5 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+            <h3 class="font-bold text-lg text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-emerald-400">casino</span> Straight Up Line Generator
+            </h3>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">Bookmaker Ready</span>
+          </div>
+
+          <!-- Pick count picker (1 to 5) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wide mb-2">Pick Type (Numbers per Line)</label>
+            <div class="grid grid-cols-5 gap-2">
+              <button onclick="setStraightPickCount(1)" id="btn-straight-1" class="straight-pick-btn py-2.5 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300">1 (Single)</button>
+              <button onclick="setStraightPickCount(2)" id="btn-straight-2" class="straight-pick-btn py-2.5 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300">2 (Double)</button>
+              <button onclick="setStraightPickCount(3)" id="btn-straight-3" class="straight-pick-btn py-2.5 rounded-xl text-xs font-bold transition border border-emerald-500 bg-emerald-600 text-white shadow-md">3 (Treble)</button>
+              <button onclick="setStraightPickCount(4)" id="btn-straight-4" class="straight-pick-btn py-2.5 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300">4 (4-Fold)</button>
+              <button onclick="setStraightPickCount(5)" id="btn-straight-5" class="straight-pick-btn py-2.5 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300">5 (5-Fold)</button>
+            </div>
+          </div>
+
+          <!-- Number of lines to generate -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="straightLineCount" class="block text-xs font-semibold text-slate-300 uppercase tracking-wide mb-1">Number of Lines</label>
+              <input type="number" id="straightLineCount" min="1" max="500" value="5" onchange="AppState.straightLineCount = parseInt(this.value) || 5; updateStateJSONEditor();" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 font-mono">
+            </div>
+            <div>
+              <label for="straightSortOrder" class="block text-xs font-semibold text-slate-300 uppercase tracking-wide mb-1">Ball Sort Order</label>
+              <select id="straightSortOrder" onchange="AppState.straightSortOrder = this.value; updateStateJSONEditor();" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                <option value="asc">Ascending (1 to 39)</option>
+                <option value="draw">As Drawn (Random)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Pool Source Option -->
+          <div>
+            <label for="straightPoolSource" class="block text-xs font-semibold text-slate-300 uppercase tracking-wide mb-1">Active Pool Source</label>
+            <select id="straightPoolSource" onchange="AppState.straightPoolSource = this.value; updateStateJSONEditor();" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+              <option value="all">Full Standard Pool (1 to 39)</option>
+              <option value="custom">Custom Filtered Pool (<span id="straightActiveCountDisplay">39</span> balls active)</option>
+              <option value="uniqueList">Selected Saved Unique List</option>
+            </select>
+          </div>
+
+          <!-- Generate Button -->
+          <button onclick="generateStraightLines()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl shadow-lg transition transform active:scale-[0.99] flex items-center justify-center gap-2 text-base">
+            <span class="material-symbols-outlined">bolt</span> Generate Straight Lines
+          </button>
+        </div>
+
+        <!-- Output Display Area -->
+        <div class="lg:col-span-7 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-lg text-white">Generated Straight Lines</h3>
+                <span id="straightLinesCountBadge" class="bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full text-xs font-mono">0 lines</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="copyGeneratedStraightLines()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-xs text-slate-200 rounded-lg flex items-center gap-1 transition">
+                  <span class="material-symbols-outlined text-sm">content_copy</span> Copy
+                </button>
+                <button onclick="saveStraightToHistory()" class="px-3 py-1 bg-emerald-700/60 hover:bg-emerald-600 text-xs text-emerald-200 rounded-lg flex items-center gap-1 transition">
+                  <span class="material-symbols-outlined text-sm">bookmark</span> Save
+                </button>
+                <button onclick="clearStraightLines()" class="px-3 py-1 bg-rose-900/40 hover:bg-rose-800/60 text-xs text-rose-300 rounded-lg flex items-center gap-1 transition">
+                  <span class="material-symbols-outlined text-sm">delete</span> Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- Single Line Odds Banner -->
+            <div id="straightOddsBanner" class="my-3 p-3 bg-slate-900/80 rounded-xl border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs sm:text-sm">
+              <span class="text-slate-300 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-emerald-400 text-base">analytics</span>
+                Individual Line Winning Probability:
+              </span>
+              <span id="straightOddsDisplay" class="font-mono font-bold text-emerald-400">1 in 457.0 (0.219%)</span>
+            </div>
+
+            <!-- Straight Lines Container -->
+            <div id="straightLinesList" class="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+              <div class="text-center py-12 text-slate-500 text-sm italic">
+                No straight lines generated yet. Click "Generate Straight Lines" above.
+              </div>
+            </div>
+          </div>
+
+          <!-- Cumulative Combined Odds & Mathematical Summary Container -->
+          <div id="straightCumulativeSection" class="pt-3 border-t border-slate-700/60 space-y-2">
+            <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-3 rounded-xl border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">stacked_line_chart</span> Cumulative Combined Winning Chance
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5">
+                  Probability of hitting <strong class="text-slate-200">at least 1 winning line</strong> across all <span id="straightCumCountText" class="text-emerald-400 font-mono font-bold">5 lines</span> played:
+                </div>
+              </div>
+              <div class="text-right sm:flex-shrink-0">
+                <div id="straightCumulativeOddsDisplay" class="font-mono font-extrabold text-base sm:text-lg text-emerald-400">1 in 91.8 (1.09%)</div>
+                <div class="text-[10px] text-slate-500 font-mono" id="straightCumulativeFormula">P(≥1 win) = 1 - (1 - p)^M</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Combinations Wheel Tab -->
+    <div id="tab-content-combos" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Combinations Config -->
+        <div class="lg:col-span-5 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+            <h3 class="font-bold text-lg text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-teal-400">grain</span> Combinations Wheel Generator
+            </h3>
+            <span class="px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-400 text-xs font-medium border border-teal-500/20">Full Mathematical Cover</span>
+          </div>
+
+          <p class="text-xs text-slate-400">
+            Select an anchor group of your chosen candidate numbers (e.g. 6 to 12 balls) and generate all mathematically complete combinations of 1, 2, 3, 4, or 5-fold bets.
+          </p>
+
+          <!-- Combo Target Size (k) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wide mb-2">Combination Target Line Size</label>
+            <div class="grid grid-cols-5 gap-2">
+              <button onclick="setComboPickSize(1)" id="btn-combo-1" class="combo-size-btn py-2 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300">1s (Singles)</button>
+              <button onclick="setComboPickSize(2)" id="btn-combo-2" class="combo-size-btn py-2 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300">2s (Doubles)</button>
+              <button onclick="setComboPickSize(3)" id="btn-combo-3" class="combo-size-btn py-2 rounded-xl text-xs font-bold transition border border-teal-500 bg-teal-600 text-white shadow-md">3s (Trebles)</button>
+              <button onclick="setComboPickSize(4)" id="btn-combo-4" class="combo-size-btn py-2 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300">4s (4-Folds)</button>
+              <button onclick="setComboPickSize(5)" id="btn-combo-5" class="combo-size-btn py-2 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300">5s (5-Folds)</button>
+            </div>
+          </div>
+
+          <!-- Quick Numbers Selection Matrix for Wheeling -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                Pick Anchor Balls (<span id="comboSelectedCount" class="text-teal-400 font-mono font-bold">6</span> selected)
+              </label>
+              <div class="flex gap-2">
+                <button onclick="selectRandomComboAnchors(6)" class="text-[11px] text-teal-400 hover:underline">Pick 6</button>
+                <span class="text-slate-600">|</span>
+                <button onclick="selectRandomComboAnchors(8)" class="text-[11px] text-teal-400 hover:underline">Pick 8</button>
+                <span class="text-slate-600">|</span>
+                <button onclick="clearComboAnchors()" class="text-[11px] text-rose-400 hover:underline">Clear</button>
+              </div>
+            </div>
+
+            <!-- 39-Ball Interactive Matrix for Combo -->
+            <div id="comboBallsGrid" class="grid grid-cols-8 sm:grid-cols-10 gap-1.5 max-h-48 overflow-y-auto p-2 bg-slate-900/90 rounded-xl border border-slate-700/80">
+              <!-- Dynamically populated 1 to 39 -->
+            </div>
+          </div>
+
+          <!-- Stats Calculation Summary -->
+          <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-700 text-xs space-y-1 font-mono">
+            <div class="flex justify-between text-slate-400">
+              <span>Total Combinations:</span>
+              <span id="comboTotalLinesCalculated" class="text-teal-400 font-bold">20 lines</span>
+            </div>
+            <div class="flex justify-between text-slate-400">
+              <span>True Win Odds (Per Line):</span>
+              <span id="comboPerLineOdds" class="text-emerald-400 font-bold">1 in 457.0 (0.219%)</span>
+            </div>
+          </div>
+
+          <button onclick="generateCombinationLines()" class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-400 hover:to-cyan-500 text-slate-950 font-bold rounded-xl shadow-lg transition transform active:scale-[0.99] flex items-center justify-center gap-2 text-base">
+            <span class="material-symbols-outlined">alt_route</span> Calculate & Wheel Combinations
+          </button>
+        </div>
+
+        <!-- Output Combination Results -->
+        <div class="lg:col-span-7 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-lg text-white">Wheeled Combinations</h3>
+                <span id="comboLinesCountBadge" class="bg-teal-900/60 text-teal-300 px-2 py-0.5 rounded-full text-xs font-mono">0 combinations</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="copyGeneratedComboLines()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-xs text-slate-200 rounded-lg flex items-center gap-1 transition">
+                  <span class="material-symbols-outlined text-sm">content_copy</span> Copy All
+                </button>
+                <button onclick="saveComboToHistory()" class="px-3 py-1 bg-teal-700/60 hover:bg-teal-600 text-xs text-teal-200 rounded-lg flex items-center gap-1 transition">
+                  <span class="material-symbols-outlined text-sm">bookmark</span> Save
+                </button>
+                <button onclick="clearComboLines()" class="px-3 py-1 bg-rose-900/40 hover:bg-rose-800/60 text-xs text-rose-300 rounded-lg flex items-center gap-1 transition">
+                  <span class="material-symbols-outlined text-sm">delete</span> Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- Combos Result Grid -->
+            <div id="comboLinesList" class="mt-4 space-y-2 max-h-[380px] overflow-y-auto pr-1">
+              <div class="text-center py-12 text-slate-500 text-sm italic">
+                Select your anchor numbers and target size, then click "Calculate & Wheel Combinations".
+              </div>
+            </div>
+          </div>
+
+          <!-- Cumulative Wheel Coverage Odds Card -->
+          <div id="comboCumulativeSection" class="pt-3 border-t border-slate-700/60 space-y-2">
+            <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-3 rounded-xl border border-teal-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-base">shield_with_heart</span> Cumulative Wheel Coverage Odds
+                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5">
+                  Exact probability that your <span id="comboAnchorCountText" class="text-teal-300 font-bold">6</span> anchor balls catch <strong class="text-slate-200">at least 1 winning combination</strong>:
+                </div>
+              </div>
+              <div class="text-right sm:flex-shrink-0">
+                <div id="comboCumulativeOddsDisplay" class="font-mono font-extrabold text-base sm:text-lg text-teal-400">1 in 22.8 (4.38%)</div>
+                <div class="text-[10px] text-slate-500 font-mono" id="comboFormulaDisplay">P(m ≥ k) = Σ [C(n,m)·C(39-n, D-m)] / C(39,D)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Winning Numbers Results Checker Tab -->
+    <div id="tab-content-checker" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Checker Setup & Ball Selector -->
+        <div class="lg:col-span-6 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+            <div>
+              <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-400">fact_check</span> Winning Numbers Ticket Checker
+              </h3>
+              <p class="text-xs text-slate-400">Select drawn numbers or simulate a live draw to check your straight lines & wheels.</p>
+            </div>
+          </div>
+
+          <!-- Drawn Balls Selector Controls -->
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-semibold uppercase text-slate-300 tracking-wider">
+                1. Main Drawn Numbers (<span id="checkerMainCountDisplay" class="text-emerald-400 font-mono font-bold">0</span> of 6 selected)
+              </span>
+              <div class="flex gap-2">
+                <button onclick="simulateRandomDraw()" class="px-2.5 py-1 bg-amber-600/80 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded-lg flex items-center gap-1 shadow">
+                  <span class="material-symbols-outlined text-sm">casino</span> Simulate Random Draw
+                </button>
+                <button onclick="clearWinningNumbers()" class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-rose-300 text-xs rounded-lg">
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- 1 to 39 Main Number Selector Matrix -->
+            <div id="checkerMainBallsGrid" class="grid grid-cols-8 sm:grid-cols-10 gap-1.5 p-2.5 bg-slate-900/90 rounded-xl border border-slate-700/80">
+              <!-- Dynamically populated 1 to 39 -->
+            </div>
+
+            <!-- Optional 7th Bonus Ball -->
+            <div class="pt-2 border-t border-slate-700/60">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold uppercase text-amber-300 tracking-wider">
+                  2. Bonus Ball (<span id="checkerBonusStatusDisplay" class="font-mono text-slate-400">None</span>)
+                </span>
+                <button onclick="clearBonusBall()" class="text-[11px] text-slate-400 hover:text-rose-400">Remove Bonus Ball</button>
+              </div>
+              <div id="checkerBonusBallsGrid" class="grid grid-cols-8 sm:grid-cols-10 gap-1.5 p-2.5 bg-slate-900/90 rounded-xl border border-slate-700/80">
+                <!-- Dynamically populated 1 to 39 for bonus selection -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checker Scorecard & Live Match Summary -->
+        <div class="lg:col-span-6 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg space-y-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+              <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-emerald-400">insights</span> Results Scorecard & Hits
+              </h3>
+              <span id="checkerOverallStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-700 text-slate-300">Awaiting Draw Numbers</span>
+            </div>
+
+            <!-- Active Winning Numbers Display Area -->
+            <div class="my-4 p-3.5 bg-slate-900/90 border border-slate-700 rounded-xl space-y-2">
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Currently Set Draw Numbers:</div>
+              <div class="flex items-center gap-2 flex-wrap min-h-[44px]" id="checkerActiveBallsRow">
+                <span class="text-xs text-slate-500 italic">No winning balls selected yet. Pick numbers or click "Simulate Random Draw".</span>
+              </div>
+            </div>
+
+            <!-- Hit Statistics Scorecard Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center text-xs">
+              <div class="p-3 bg-slate-900/70 rounded-xl border border-slate-700/80">
+                <div class="text-slate-400 font-medium">Straight Lines Checked</div>
+                <div class="text-lg font-mono font-bold text-white mt-1" id="statStraightTotal">0</div>
+                <div class="text-[11px] text-emerald-400 font-bold mt-0.5" id="statStraightWinners">0 Winners (100% Match)</div>
+              </div>
+              <div class="p-3 bg-slate-900/70 rounded-xl border border-slate-700/80">
+                <div class="text-slate-400 font-medium">Combination Wheels Checked</div>
+                <div class="text-lg font-mono font-bold text-white mt-1" id="statComboTotal">0</div>
+                <div class="text-[11px] text-teal-400 font-bold mt-0.5" id="statComboWinners">0 Winners (100% Match)</div>
+              </div>
+              <div class="p-3 bg-slate-900/70 rounded-xl border border-slate-700/80 col-span-2 sm:col-span-1">
+                <div class="text-slate-400 font-medium">Total Winning Bets</div>
+                <div class="text-xl font-mono font-black text-emerald-400 mt-1" id="statTotalWinners">0</div>
+                <div class="text-[10px] text-slate-400 mt-0.5" id="statWinPercentage">0.0% Win Rate</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-900/90 border border-emerald-500/30 rounded-xl text-xs text-slate-300 space-y-1.5">
+            <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">info</span> How Live Checking Works:
+            </div>
+            <p class="text-slate-400 text-[11px] leading-relaxed">
+              When numbers are set here, every generated straight line and wheeled combination across the entire app is dynamically compared. Matching balls receive a glowing green ring and checkmark. Lines where <strong class="text-emerald-300">100% of the numbers match</strong> are highlighted as winning slips!
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Number Pools Tab -->
+    <div id="tab-content-pools" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Interactive 1-39 Master Exclusion/Inclusion Pool -->
+        <div class="lg:col-span-6 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+            <div>
+              <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-400">tune</span> Master Number Filter (1–39)
+              </h3>
+              <p class="text-xs text-slate-400">Toggle balls ON (green) or OFF (red) to exclude them from straight generators.</p>
+            </div>
+            <span id="activePoolBadge" class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold">39 Active</span>
+          </div>
+
+          <!-- Quick Pool Presets -->
+          <div class="flex flex-wrap gap-1.5 text-xs">
+            <button onclick="poolSelectAll()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200">Include All (39)</button>
+            <button onclick="poolSelectNone()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200">Exclude All</button>
+            <button onclick="poolSelectEvens()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200">Evens (19)</button>
+            <button onclick="poolSelectOdds()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200">Odds (20)</button>
+            <button onclick="poolSelectLow()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200">Low (1-19)</button>
+            <button onclick="poolSelectHigh()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200">High (20-39)</button>
+            <button onclick="poolInvert()" class="px-2.5 py-1 bg-amber-600/60 hover:bg-amber-500 text-white rounded-lg">Invert</button>
+          </div>
+
+          <!-- Master 39-Ball Interactive Matrix -->
+          <div id="masterBallsMatrix" class="grid grid-cols-8 sm:grid-cols-10 gap-2 p-3 bg-slate-900/90 rounded-xl border border-slate-700/80">
+            <!-- Dynamically populated with 1 to 39 clickable toggles -->
+          </div>
+        </div>
+
+        <!-- Custom Named Unique Lists Manager -->
+        <div class="lg:col-span-6 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+            <div>
+              <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-purple-400">bookmark_star</span> Custom Named Lists
+              </h3>
+              <p class="text-xs text-slate-400">Save unique sets of numbers (e.g. Birthday set, High frequency hot pool).</p>
+            </div>
+            <button onclick="document.getElementById('customListName').focus()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded-lg text-xs flex items-center gap-1 shadow">
+              <span class="material-symbols-outlined text-sm">add</span> New List
+            </button>
+          </div>
+
+          <!-- Form to Create/Edit List -->
+          <div id="createListCard" class="bg-slate-900/90 border border-purple-500/40 rounded-xl p-4 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-purple-300" id="listEditorHeading">Create Unique Number List</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="customListName" class="block text-[11px] text-slate-400 mb-1">List Name</label>
+                <input type="text" id="customListName" placeholder="e.g. My Lucky 10" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500">
+              </div>
+              <div>
+                <label for="customListNumbers" class="block text-[11px] text-slate-400 mb-1">Numbers (1–39, comma separated)</label>
+                <input type="text" id="customListNumbers" placeholder="e.g. 3, 7, 14, 22, 31, 38" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500 font-mono">
+              </div>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button onclick="quickFillListWithRandom(6)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg">Pick Random 6</button>
+              <button onclick="saveCustomList()" class="px-4 py-1 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg shadow">Save List</button>
+            </div>
+          </div>
+
+          <!-- Saved Unique Lists Container -->
+          <div id="savedListsContainer" class="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
+            <!-- Dynamically populated saved lists -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- JSON State Tab -->
+    <div id="tab-content-state" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- JSON State Configuration & Import/Export -->
+        <div class="lg:col-span-7 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+            <div>
+              <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-sky-400">data_object</span> Application JSON State
+              </h3>
+              <p class="text-xs text-slate-400">Maintain, backup, or import complete application state seamlessly.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="exportStateJSON()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-lg flex items-center gap-1 shadow">
+                <span class="material-symbols-outlined text-sm">download</span> Download
+              </button>
+              <button onclick="copyStateJSON()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">content_copy</span> Copy
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label for="jsonStateTextarea" class="block text-xs font-semibold text-slate-300 uppercase tracking-wide mb-1">JSON State Editor</label>
+            <textarea id="jsonStateTextarea" rows="12" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 font-mono text-xs text-emerald-400 focus:outline-none focus:border-sky-500 leading-relaxed"></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <label class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-xs font-semibold cursor-pointer transition flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">upload_file</span> Load JSON File
+              <input type="file" id="stateFileInput" accept=".json" class="hidden" onchange="handleFileUpload(event)">
+            </label>
+            <button onclick="applyStateFromJSON()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold rounded-xl text-xs shadow-lg transition flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">sync</span> Apply State
+            </button>
+          </div>
+        </div>
+
+        <!-- Saved Ticket History & Bookmarks -->
+        <div class="lg:col-span-5 bg-slate-800/80 border border-slate-700/70 rounded-2xl p-5 shadow-lg flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3">
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-lg text-white flex items-center gap-2">
+                  <span class="material-symbols-outlined text-rose-400">history_edu</span> Saved Ticket Slips
+                </h3>
+                <span id="savedHistoryCountBadge" class="bg-rose-900/60 text-rose-300 px-2 py-0.5 rounded-full text-xs font-mono">0 saved</span>
+              </div>
+              <button onclick="clearHistory()" class="px-2.5 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 text-xs rounded-lg transition">Clear All</button>
+            </div>
+
+            <div id="savedTicketsContainer" class="mt-4 space-y-3 max-h-[380px] overflow-y-auto pr-1">
+              <div class="text-center py-12 text-slate-500 text-sm italic">
+                No tickets saved in history. Use the "Save" button on generated lines or wheels.
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+            <span>Data stored securely in local state and JSON.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="mt-12 pt-8 border-t border-slate-800 space-y-6" aria-labelledby="faq-section-title">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <span class="material-symbols-outlined">quiz</span>
+        </div>
+        <div>
+          <h2 id="faq-section-title" class="text-xl font-bold text-white">Frequently Asked Questions</h2>
+          <p class="text-xs text-slate-400">Comprehensive guide to Irish Daily Million lottery mathematics, odds, and combination betting.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">What is the Irish Daily Million lottery format?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The Irish Daily Million is a numbers lottery where 6 main numbers plus 1 bonus ball are drawn from a single pool of 39 balls. Draws take place twice daily at 2:00 PM and 9:00 PM GMT, offering opportunities for both standard jackpot play and fixed-odds bookmaker wagers.
+          </p>
+        </article>
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">How do bookmakers offer bets on 1 to 5 numbers?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Leading high-street and online bookmakers allow punters to bet on matching exactly 1, 2, 3, 4, or 5 numbers. Unlike official parimutuel tickets requiring 6 matches for the jackpot, straight line bets pay out fixed multiples as long as all your selected balls are drawn among the 6 (or 7) drawn balls.
+          </p>
+        </article>
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">What is the actual mathematical chance of matching 1 number?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            In a 6-ball draw from 39 numbers, the exact probability of matching a single chosen number is 6/39, which equals 1 in 6.5 (15.38%). If betting in a market that includes the 7th bonus ball, the probability increases to 7/39, or exactly 1 in 5.57 (17.95%).
+          </p>
+        </article>
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">What is the exact probability of hitting a 2-number Double?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            For 2 chosen numbers in a 6-ball draw, the formula simplifies to (6×5)/(39×38) = 30/1482, which is 1 in 49.4 (2.02%). In a 7-ball draw including the bonus, the chance improves to (7×6)/(39×38) = 42/1482, giving 1 in 35.29 (2.83%).
+          </p>
+        </article>
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">What is the true chance of hitting a 3-number Treble?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The true mathematical odds of matching a 3-ball treble from the 6 main numbers are (6×5×4)/(39×38×37) = 120/54834, or 1 in 456.95 (0.219%). In a 7-ball draw including bonus ball, the chance is (7×6×5)/54834 = 210/54834, or 1 in 261.11 (0.383%).
+          </p>
+        </article>
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">How does the Combination Wheel system work?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            A lottery wheel takes a larger pool of chosen candidate numbers (such as 6 to 12 balls) and algorithmically produces every possible distinct combination of size 1, 2, 3, 4, or 5. This guarantees complete mathematical coverage across all your selected numbers.
+          </p>
+        </article>
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">How does the Results Checker work with drawn numbers?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The Results Checker compares your entered winning balls (or a simulated draw) directly against every generated line and wheeled combination. It automatically highlights matching balls in real time, marks winning slips, and tallies total winners.
+          </p>
+        </article>
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">How does the JSON state import and export work?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            The JSON state system serializes all application preferences, including your active ball filters, custom named lists, generated lines, winning numbers, and saved ticket history. You can backup your setup and restore it on any device seamlessly.
+          </p>
+        </article>
+
+        <article class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-4 space-y-2">
+          <h2 class="text-sm font-bold text-emerald-400">Does this tool require an internet connection or aggregated data?</h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            No. This tool operates entirely offline with zero real-time web scraping or third-party data aggregation. All combinatorial algorithms, odds calculations, sound synthesizers, and state persistence execute locally inside your web browser.
+          </p>
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-950 border-t border-slate-800 py-6 mt-12 text-slate-500 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>&copy; Irish Daily Million Lottery Picker & Combinations Generator. Offline mathematical utility.</p>
+      <p class="font-mono text-slate-600">salivity.github.io/irish-daily-million-picker</p>
+    </div>
+  </footer>
+
+  <script>
+    /* Application Core State Object */
+    const AppState = {
+      drawMode: 'main6', // 'main6' or 'bonus7'
+      audioEnabled: true,
+      straightPickCount: 3, // 1 to 5
+      straightLineCount: 5,
+      straightSortOrder: 'asc',
+      straightPoolSource: 'all', // 'all', 'custom', 'uniqueList'
+      selectedCustomListId: null,
+      activePoolBalls: Array.from({ length: 39 }, (_, i) => i + 1), // 1 to 39
+      comboPickSize: 3,
+      comboAnchorBalls: [3, 7, 14, 21, 28, 35],
+      customLists: [
+        { id: 'list-1', name: 'Prime Numbers', numbers: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37] },
+        { id: 'list-2', name: 'Lucky 7s & Doubles', numbers: [7, 14, 21, 28, 35, 11, 22, 33] }
+      ],
+      generatedStraightLines: [],
+      generatedComboLines: [],
+      winningNumbers: {
+        main: [],
+        bonus: null
+      },
+      savedHistory: []
+    };
+
+    /* Web Audio API Sound Synthesizer */
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!AppState.audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === 'ball') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440 + Math.random() * 220, now);
+          osc.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'complete') {
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        } else if (type === 'win') {
+          [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+            gain.gain.setValueAtTime(0.22, now + idx * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.1);
+            osc.stop(now + idx * 0.1 + 0.35);
+          });
+        } else if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        }
+      } catch (err) {
+        // Audio synthesis fallback
+      }
+    }
+
+    function toggleAudio() {
+      AppState.audioEnabled = !AppState.audioEnabled;
+      const soundIcon = document.getElementById('soundIcon');
+      const soundBtn = document.getElementById('soundToggleBtn');
+      if (AppState.audioEnabled) {
+        soundIcon.textContent = 'volume_up';
+        soundBtn.classList.replace('text-slate-500', 'text-slate-300');
+        showToast('Sound effects enabled');
+        playSound('click');
+      } else {
+        soundIcon.textContent = 'volume_off';
+        soundBtn.classList.replace('text-slate-300', 'text-slate-500');
+        showToast('Sound effects muted');
+      }
+      updateStateJSONEditor();
+    }
+
+    /* Combinatorics and Probability Formulas */
+    function nCr(n, r) {
+      if (r < 0 || r > n) return 0;
+      if (r === 0 || r === n) return 1;
+      if (r > n / 2) r = n - r;
+      let res = 1;
+      for (let i = 1; i <= r; i++) {
+        res = (res * (n - i + 1)) / i;
+      }
+      return Math.round(res);
+    }
+
+    function getCombinations(arr, k) {
+      const results = [];
+      function backtrack(start, combo) {
+        if (combo.length === k) {
+          results.push([...combo]);
+          return;
+        }
+        for (let i = start; i < arr.length; i++) {
+          combo.push(arr[i]);
+          backtrack(i + 1, combo);
+          combo.pop();
+        }
+      }
+      backtrack(0, []);
+      return results;
+    }
+
+    function calculateTrueOdds(k, drawMode = AppState.drawMode) {
+      const N = 39;
+      const D = drawMode === 'bonus7' ? 7 : 6;
+      if (k < 1 || k > 5 || k > D) return { probability: 0, oneInX: '0', percent: '0%' };
+
+      let numerator = 1;
+      let denominator = 1;
+      for (let i = 0; i < k; i++) {
+        numerator *= (D - i);
+        denominator *= (N - i);
+      }
+      const probability = numerator / denominator;
+      const oneInX = (1 / probability).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      const percent = (probability * 100).toFixed(k >= 4 ? 4 : (k === 3 ? 3 : 2)) + '%';
+      return {
+        probability,
+        oneInX,
+        percent,
+        formula: `(${Array.from({length: k}, (_, i) => D-i).join('×')})/(${Array.from({length: k}, (_, i) => N-i).join('×')})`
+      };
+    }
+
+    /* Cumulative Probability for M Lines */
+    function calculateStraightCumulativeOdds(k, lineCount, drawMode = AppState.drawMode) {
+      const single = calculateTrueOdds(k, drawMode);
+      if (single.probability === 0 || lineCount <= 0) return { prob: 0, oneInX: '0', percent: '0%' };
+
+      // Probability of at least 1 winning line: 1 - (1 - p)^M
+      const pNone = Math.pow(1 - single.probability, lineCount);
+      const pAtLeastOne = Math.max(0, 1 - pNone);
+      const oneInX = pAtLeastOne > 0 ? (1 / pAtLeastOne).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '0';
+      const percent = (pAtLeastOne * 100).toFixed(pAtLeastOne < 0.01 ? 4 : 2) + '%';
+      return {
+        prob: pAtLeastOne,
+        oneInX,
+        percent
+      };
+    }
+
+    /* Cumulative Hypergeometric Probability for Combination Wheel (n anchors, size k, draw size D) */
+    function calculateWheelCumulativeCoverage(n, k, drawMode = AppState.drawMode) {
+      const N = 39;
+      const D = drawMode === 'bonus7' ? 7 : 6;
+      if (n < k || k < 1) return { prob: 0, oneInX: '0', percent: '0%' };
+
+      const totalUniverseDraws = nCr(N, D);
+      let favorableDraws = 0;
+      const maxM = Math.min(n, D);
+      for (let m = k; m <= maxM; m++) {
+        const waysPickFromAnchors = nCr(n, m);
+        const waysPickFromOthers = nCr(N - n, D - m);
+        favorableDraws += (waysPickFromAnchors * waysPickFromOthers);
+      }
+
+      const pAtLeastOne = favorableDraws / totalUniverseDraws;
+      const oneInX = pAtLeastOne > 0 ? (1 / pAtLeastOne).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '0';
+      const percent = (pAtLeastOne * 100).toFixed(pAtLeastOne < 0.01 ? 4 : 2) + '%';
+      return {
+        prob: pAtLeastOne,
+        oneInX,
+        percent
+      };
+    }
+
+    function updateOddsDisplay() {
+      for (let i = 1; i <= 5; i++) {
+        const stats = calculateTrueOdds(i, AppState.drawMode);
+        const matrixEl = document.getElementById(`odds-matrix-${i}`);
+        if (matrixEl) {
+          matrixEl.textContent = `1 in ${stats.oneInX} (${stats.percent})`;
+        }
+      }
+      
+      // Update straight panel individual banner
+      const straightStats = calculateTrueOdds(AppState.straightPickCount, AppState.drawMode);
+      const bannerEl = document.getElementById('straightOddsDisplay');
+      if (bannerEl) {
+        bannerEl.textContent = `1 in ${straightStats.oneInX} (${straightStats.percent})`;
+      }
+
+      // Update straight panel cumulative odds
+      const activeLineCount = AppState.generatedStraightLines.length > 0 ? AppState.generatedStraightLines.length : (AppState.straightLineCount || 5);
+      const straightCum = calculateStraightCumulativeOdds(AppState.straightPickCount, activeLineCount, AppState.drawMode);
+      const cumDisplayEl = document.getElementById('straightCumulativeOddsDisplay');
+      const cumCountEl = document.getElementById('straightCumCountText');
+      if (cumDisplayEl) cumDisplayEl.textContent = `1 in ${straightCum.oneInX} (${straightCum.percent})`;
+      if (cumCountEl) cumCountEl.textContent = `${activeLineCount} line${activeLineCount > 1 ? 's' : ''}`;
+
+      // Update combo panel per-line and cumulative coverage
+      const comboStats = calculateTrueOdds(AppState.comboPickSize, AppState.drawMode);
+      const comboPerLineOddsEl = document.getElementById('comboPerLineOdds');
+      if (comboPerLineOddsEl) {
+        comboPerLineOddsEl.textContent = `1 in ${comboStats.oneInX} (${comboStats.percent})`;
+      }
+
+      const n = AppState.comboAnchorBalls.length;
+      const k = AppState.comboPickSize;
+      const wheelCum = calculateWheelCumulativeCoverage(n, k, AppState.drawMode);
+      const comboCumDisplay = document.getElementById('comboCumulativeOddsDisplay');
+      const comboAnchorCountText = document.getElementById('comboAnchorCountText');
+      if (comboCumDisplay) comboCumDisplay.textContent = `1 in ${wheelCum.oneInX} (${wheelCum.percent})`;
+      if (comboAnchorCountText) comboAnchorCountText.textContent = n;
+    }
+
+    function updateDrawMode(mode) {
+      AppState.drawMode = mode;
+      playSound('click');
+      updateOddsDisplay();
+      renderStraightLines();
+      renderComboLines();
+      updateCheckerScorecard();
+      updateStateJSONEditor();
+      showToast(`Switched to ${mode === 'bonus7' ? '7-Ball (Main + Bonus)' : '6-Ball (Main Only)'} draw mode`);
+    }
+
+    function switchMainTab(tabKey) {
+      playSound('click');
+      ['straight', 'combos', 'checker', 'pools', 'state'].forEach(key => {
+        const content = document.getElementById(`tab-content-${key}`);
+        const navBtn = document.getElementById(`nav-tab-${key}`);
+        if (content && navBtn) {
+          if (key === tabKey) {
+            content.classList.remove('hidden');
+            navBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-emerald-600 text-white shadow-sm flex items-center gap-1.5';
+          } else {
+            content.classList.add('hidden');
+            navBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center gap-1.5';
+          }
+        }
+      });
+      if (tabKey === 'state') {
+        updateStateJSONEditor();
+      } else if (tabKey === 'checker') {
+        renderCheckerGrids();
+        updateCheckerScorecard();
+      }
+    }
+
+    /* Toast Notification Helper */
+    let toastTimeout = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toastMessage');
+      const text = document.getElementById('toastText');
+      if (!toast || !text) return;
+      text.textContent = msg;
+      toast.classList.remove('hidden');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3200);
+    }
+
+    function getBallColorClass(num) {
+      if (num <= 8) return 'lottery-ball';        // Emerald Green
+      if (num <= 16) return 'lottery-ball-blue';   // Royal Blue
+      if (num <= 24) return 'lottery-ball-gold';   // Amber Gold
+      if (num <= 32) return 'lottery-ball-red';    // Crimson Red
+      return 'lottery-ball-purple';                // Royal Purple
+    }
+
+    /* Check Match Helper */
+    function isWinningMatch(num) {
+      const main = AppState.winningNumbers.main || [];
+      const isBonusActive = AppState.drawMode === 'bonus7';
+      const bonus = AppState.winningNumbers.bonus;
+
+      if (main.includes(num)) {
+        return { hit: true, isBonus: false };
+      }
+      if (isBonusActive && bonus === num) {
+        return { hit: true, isBonus: true };
+      }
+      return { hit: false, isBonus: false };
+    }
+
+    function createBallElement(num, animate = false, delayIndex = 0, checkMatch = true) {
+      const ball = document.createElement('div');
+      const match = checkMatch ? isWinningMatch(num) : { hit: false, isBonus: false };
+
+      let hitClass = '';
+      if (match.hit) {
+        hitClass = match.isBonus ? 'ball-hit ball-bonus-hit' : 'ball-hit';
+      }
+
+      ball.className = `w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-white text-sm shadow-md flex-shrink-0 ${getBallColorClass(num)} ${hitClass} ${animate ? 'animate-ball' : ''}`;
+      if (animate) {
+        ball.style.animationDelay = `${delayIndex * 0.06}s`;
+      }
+      ball.textContent = num;
+      return ball;
+    }
+
+    /* Straight Line Picker Logic */
+    function setStraightPickCount(count) {
+      AppState.straightPickCount = count;
+      playSound('click');
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`btn-straight-${i}`);
+        if (btn) {
+          if (i === count) {
+            btn.className = 'straight-pick-btn py-2.5 rounded-xl text-xs font-bold transition border border-emerald-500 bg-emerald-600 text-white shadow-md';
+          } else {
+            btn.className = 'straight-pick-btn py-2.5 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300';
+          }
+        }
+      }
+      updateOddsDisplay();
+      updateStateJSONEditor();
+    }
+
+    function getActivePoolNumbersForStraight() {
+      const source = AppState.straightPoolSource || 'all';
+      if (source === 'custom') {
+        return AppState.activePoolBalls.length > 0 ? [...AppState.activePoolBalls] : Array.from({length: 39}, (_, i) => i + 1);
+      } else if (source === 'uniqueList') {
+        if (AppState.customLists.length > 0) {
+          return [...AppState.customLists[0].numbers];
+        }
+      }
+      return Array.from({ length: 39 }, (_, i) => i + 1);
+    }
+
+    function generateStraightLines() {
+      const lineCount = parseInt(document.getElementById('straightLineCount').value) || 5;
+      const pickCount = AppState.straightPickCount;
+      const sortOrder = document.getElementById('straightSortOrder').value;
+      const pool = getActivePoolNumbersForStraight();
+
+      if (pool.length < pickCount) {
+        showToast(`Selected pool has only ${pool.length} numbers; need at least ${pickCount}.`);
+        return;
+      }
+
+      AppState.generatedStraightLines = [];
+      for (let l = 0; l < lineCount; l++) {
+        const poolCopy = [...pool];
+        const line = [];
+        for (let p = 0; p < pickCount; p++) {
+          const randomIndex = Math.floor(Math.random() * poolCopy.length);
+          line.push(poolCopy.splice(randomIndex, 1)[0]);
+        }
+        if (sortOrder === 'asc') {
+          line.sort((a, b) => a - b);
+        }
+        AppState.generatedStraightLines.push(line);
+      }
+
+      renderStraightLines(true);
+      playSound('complete');
+      updateOddsDisplay();
+      updateCheckerScorecard();
+      updateStateJSONEditor();
+    }
+
+    function renderStraightLines(isAnimated = false) {
+      const container = document.getElementById('straightLinesList');
+      const countBadge = document.getElementById('straightLinesCountBadge');
+      if (!container) return;
+
+      container.innerHTML = '';
+      const lines = AppState.generatedStraightLines || [];
+      countBadge.textContent = `${lines.length} line${lines.length === 1 ? '' : 's'}`;
+
+      if (lines.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 text-slate-500 text-sm italic">No straight lines generated yet. Click "Generate Straight Lines" above.</div>';
+        updateOddsDisplay();
+        return;
+      }
+
+      const hasWinningNums = (AppState.winningNumbers.main && AppState.winningNumbers.main.length > 0);
+
+      lines.forEach((line, lIdx) => {
+        // Calculate matches
+        let matchCount = 0;
+        line.forEach(num => {
+          if (isWinningMatch(num).hit) matchCount++;
+        });
+        const isFullWinner = (hasWinningNums && matchCount === line.length);
+
+        const lineRow = document.createElement('div');
+        lineRow.className = `p-3 bg-slate-900/90 border rounded-xl flex items-center justify-between gap-3 transition ${
+          isFullWinner ? 'winner-row-glow' : 'border-slate-700/80 hover:border-emerald-500/50'
+        }`;
+
+        const leftInfo = document.createElement('div');
+        leftInfo.className = 'flex items-center gap-2.5 sm:gap-3 flex-wrap';
+
+        const indexBadge = document.createElement('span');
+        indexBadge.className = 'text-xs font-mono font-bold text-slate-400 w-6 text-right';
+        indexBadge.textContent = `#${lIdx + 1}`;
+        leftInfo.appendChild(indexBadge);
+
+        const ballsWrapper = document.createElement('div');
+        ballsWrapper.className = 'flex items-center gap-2 flex-wrap';
+        line.forEach((num, bIdx) => {
+          ballsWrapper.appendChild(createBallElement(num, isAnimated, lIdx * 0.08 + bIdx * 0.04, true));
+        });
+        leftInfo.appendChild(ballsWrapper);
+
+        if (hasWinningNums) {
+          const matchBadge = document.createElement('span');
+          if (isFullWinner) {
+            matchBadge.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500 text-slate-950 font-mono shadow flex items-center gap-1';
+            matchBadge.innerHTML = '<span class="material-symbols-outlined text-xs">emoji_events</span> 100% WINNER!';
+          } else if (matchCount > 0) {
+            matchBadge.className = 'px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 font-mono border border-amber-500/30';
+            matchBadge.textContent = `${matchCount}/${line.length} Hit`;
+          } else {
+            matchBadge.className = 'px-2 py-0.5 rounded-full text-[10px] text-slate-500 font-mono';
+            matchBadge.textContent = `0/${line.length}`;
+          }
+          leftInfo.appendChild(matchBadge);
+        }
+
+        const actionWrapper = document.createElement('div');
+        actionWrapper.className = 'flex items-center gap-1.5 flex-shrink-0';
+        
+        const copySingleBtn = document.createElement('button');
+        copySingleBtn.className = 'p-1.5 text-slate-400 hover:text-emerald-400 transition';
+        copySingleBtn.title = 'Copy this line';
+        copySingleBtn.innerHTML = '<span class="material-symbols-outlined text-base">content_copy</span>';
+        copySingleBtn.onclick = () => {
+          copyTextToClipboard(line.join(', '));
+          showToast(`Copied Line #${lIdx + 1}: [${line.join(', ')}]`);
+        };
+        actionWrapper.appendChild(copySingleBtn);
+
+        lineRow.appendChild(leftInfo);
+        lineRow.appendChild(actionWrapper);
+        container.appendChild(lineRow);
+      });
+
+      updateOddsDisplay();
+    }
+
+    function clearStraightLines() {
+      AppState.generatedStraightLines = [];
+      renderStraightLines();
+      playSound('click');
+      updateCheckerScorecard();
+      updateStateJSONEditor();
+    }
+
+    function copyGeneratedStraightLines() {
+      if (AppState.generatedStraightLines.length === 0) {
+        showToast('No generated lines to copy');
+        return;
+      }
+      const text = AppState.generatedStraightLines.map((line, idx) => `Line ${idx + 1}: ${line.join(', ')}`).join('\n');
+      copyTextToClipboard(text);
+      showToast(`Copied ${AppState.generatedStraightLines.length} straight lines to clipboard`);
+    }
+
+    function saveStraightToHistory() {
+      if (AppState.generatedStraightLines.length === 0) {
+        showToast('No straight lines to save');
+        return;
+      }
+      const ticket = {
+        id: 'ticket-' + Date.now(),
+        type: `Straight Lines (${AppState.straightPickCount}-Fold)`,
+        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        drawMode: AppState.drawMode,
+        lines: [...AppState.generatedStraightLines]
+      };
+      AppState.savedHistory.unshift(ticket);
+      renderSavedHistory();
+      showToast('Saved ticket to history!');
+      playSound('complete');
+      updateStateJSONEditor();
+    }
+
+    /* Combinations Wheel Logic */
+    function setComboPickSize(k) {
+      AppState.comboPickSize = k;
+      playSound('click');
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`btn-combo-${i}`);
+        if (btn) {
+          if (i === k) {
+            btn.className = 'combo-size-btn py-2 rounded-xl text-xs font-bold transition border border-teal-500 bg-teal-600 text-white shadow-md';
+          } else {
+            btn.className = 'combo-size-btn py-2 rounded-xl text-xs font-bold transition border border-slate-700 bg-slate-900/80 hover:bg-slate-700 text-slate-300';
+          }
+        }
+      }
+      recalculateComboStats();
+      updateOddsDisplay();
+      updateStateJSONEditor();
+    }
+
+    function recalculateComboStats() {
+      const n = AppState.comboAnchorBalls.length;
+      const k = AppState.comboPickSize;
+      const total = n >= k ? nCr(n, k) : 0;
+      document.getElementById('comboSelectedCount').textContent = n;
+      document.getElementById('comboTotalLinesCalculated').textContent = `${total.toLocaleString()} lines`;
+      updateOddsDisplay();
+    }
+
+    function toggleComboAnchorBall(num) {
+      const idx = AppState.comboAnchorBalls.indexOf(num);
+      if (idx > -1) {
+        AppState.comboAnchorBalls.splice(idx, 1);
+      } else {
+        if (AppState.comboAnchorBalls.length >= 15) {
+          showToast('Limit 15 anchor balls for combination generation');
+          return;
+        }
+        AppState.comboAnchorBalls.push(num);
+        AppState.comboAnchorBalls.sort((a, b) => a - b);
+      }
+      playSound('ball');
+      renderComboBallsGrid();
+      recalculateComboStats();
+      updateStateJSONEditor();
+    }
+
+    function selectRandomComboAnchors(count) {
+      const pool = Array.from({length: 39}, (_, i) => i + 1);
+      const chosen = [];
+      for (let i = 0; i < count; i++) {
+        const rnd = Math.floor(Math.random() * pool.length);
+        chosen.push(pool.splice(rnd, 1)[0]);
+      }
+      AppState.comboAnchorBalls = chosen.sort((a, b) => a - b);
+      playSound('complete');
+      renderComboBallsGrid();
+      recalculateComboStats();
+      updateStateJSONEditor();
+    }
+
+    function clearComboAnchors() {
+      AppState.comboAnchorBalls = [];
+      playSound('click');
+      renderComboBallsGrid();
+      recalculateComboStats();
+      updateStateJSONEditor();
+    }
+
+    function renderComboBallsGrid() {
+      const grid = document.getElementById('comboBallsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      for (let i = 1; i <= 39; i++) {
+        const isSelected = AppState.comboAnchorBalls.includes(i);
+        const btn = document.createElement('button');
+        btn.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition flex items-center justify-center ${
+          isSelected ? 'bg-teal-500 text-slate-950 shadow-md font-extrabold ring-2 ring-teal-300' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+        }`;
+        btn.textContent = i;
+        btn.onclick = () => toggleComboAnchorBall(i);
+        grid.appendChild(btn);
+      }
+    }
+
+    function generateCombinationLines() {
+      const n = AppState.comboAnchorBalls.length;
+      const k = AppState.comboPickSize;
+
+      if (n < k) {
+        showToast(`Please select at least ${k} anchor balls. You currently have ${n}.`);
+        return;
+      }
+
+      const combos = getCombinations(AppState.comboAnchorBalls, k);
+      AppState.generatedComboLines = combos;
+
+      renderComboLines();
+      playSound('complete');
+      updateCheckerScorecard();
+      updateStateJSONEditor();
+    }
+
+    function renderComboLines() {
+      const container = document.getElementById('comboLinesList');
+      const countBadge = document.getElementById('comboLinesCountBadge');
+      if (!container) return;
+
+      container.innerHTML = '';
+      const combos = AppState.generatedComboLines || [];
+      countBadge.textContent = `${combos.length} combination${combos.length === 1 ? '' : 's'}`;
+
+      if (combos.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 text-slate-500 text-sm italic">Select your anchor numbers and target size, then click "Calculate & Wheel Combinations".</div>';
+        return;
+      }
+
+      const hasWinningNums = (AppState.winningNumbers.main && AppState.winningNumbers.main.length > 0);
+
+      combos.forEach((line, idx) => {
+        let matchCount = 0;
+        line.forEach(num => {
+          if (isWinningMatch(num).hit) matchCount++;
+        });
+        const isFullWinner = (hasWinningNums && matchCount === line.length);
+
+        const lineRow = document.createElement('div');
+        lineRow.className = `p-2.5 bg-slate-900/90 border rounded-xl flex items-center justify-between gap-2 ${
+          isFullWinner ? 'winner-row-glow' : 'border-slate-700/80'
+        }`;
+
+        const leftInfo = document.createElement('div');
+        leftInfo.className = 'flex items-center gap-2 flex-wrap';
+
+        const indexBadge = document.createElement('span');
+        indexBadge.className = 'text-[11px] font-mono font-bold text-slate-500 w-7 text-right';
+        indexBadge.textContent = `#${idx + 1}`;
+        leftInfo.appendChild(indexBadge);
+
+        const ballsWrapper = document.createElement('div');
+        ballsWrapper.className = 'flex items-center gap-1.5 flex-wrap';
+        line.forEach((num) => {
+          const match = isWinningMatch(num);
+          const miniBall = document.createElement('div');
+          const hitClass = match.hit ? (match.isBonus ? 'ball-hit ball-bonus-hit' : 'ball-hit') : '';
+          miniBall.className = `w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-xs shadow ${getBallColorClass(num)} ${hitClass}`;
+          miniBall.textContent = num;
+          ballsWrapper.appendChild(miniBall);
+        });
+        leftInfo.appendChild(ballsWrapper);
+
+        if (hasWinningNums) {
+          const matchBadge = document.createElement('span');
+          if (isFullWinner) {
+            matchBadge.className = 'px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-400 text-slate-950 font-mono flex items-center gap-0.5';
+            matchBadge.innerHTML = '<span class="material-symbols-outlined text-[12px]">emoji_events</span> WINNER!';
+          } else if (matchCount > 0) {
+            matchBadge.className = 'px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 font-mono';
+            matchBadge.textContent = `${matchCount}/${line.length}`;
+          }
+          leftInfo.appendChild(matchBadge);
+        }
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'p-1 text-slate-400 hover:text-teal-400 transition';
+        copyBtn.title = 'Copy';
+        copyBtn.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span>';
+        copyBtn.onclick = () => {
+          copyTextToClipboard(line.join(', '));
+          showToast(`Copied Combination #${idx + 1}`);
+        };
+
+        lineRow.appendChild(leftInfo);
+        lineRow.appendChild(copyBtn);
+        container.appendChild(lineRow);
+      });
+    }
+
+    function clearComboLines() {
+      AppState.generatedComboLines = [];
+      renderComboLines();
+      playSound('click');
+      updateCheckerScorecard();
+      updateStateJSONEditor();
+    }
+
+    function copyGeneratedComboLines() {
+      if (AppState.generatedComboLines.length === 0) {
+        showToast('No combination lines to copy');
+        return;
+      }
+      const text = AppState.generatedComboLines.map((line, idx) => `Combo ${idx + 1}: ${line.join(', ')}`).join('\n');
+      copyTextToClipboard(text);
+      showToast(`Copied all ${AppState.generatedComboLines.length} combinations`);
+    }
+
+    function saveComboToHistory() {
+      if (AppState.generatedComboLines.length === 0) {
+        showToast('No combinations to save');
+        return;
+      }
+      const ticket = {
+        id: 'ticket-' + Date.now(),
+        type: `Wheeled Combinations (${AppState.comboPickSize}-Fold)`,
+        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        drawMode: AppState.drawMode,
+        lines: [...AppState.generatedComboLines]
+      };
+      AppState.savedHistory.unshift(ticket);
+      renderSavedHistory();
+      showToast('Saved combinations to ticket history!');
+      playSound('complete');
+      updateStateJSONEditor();
+    }
+
+    /* Winning Numbers / Ticket Checker Logic */
+    function renderCheckerGrids() {
+      // Render Main grid (1-39)
+      const mainGrid = document.getElementById('checkerMainBallsGrid');
+      if (mainGrid) {
+        mainGrid.innerHTML = '';
+        for (let i = 1; i <= 39; i++) {
+          const isSelected = AppState.winningNumbers.main.includes(i);
+          const btn = document.createElement('button');
+          btn.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition flex items-center justify-center ${
+            isSelected ? 'bg-emerald-500 text-slate-950 font-extrabold ring-2 ring-emerald-300 shadow' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+          }`;
+          btn.textContent = i;
+          btn.onclick = () => toggleCheckerMainBall(i);
+          mainGrid.appendChild(btn);
+        }
+      }
+
+      // Render Bonus grid (1-39)
+      const bonusGrid = document.getElementById('checkerBonusBallsGrid');
+      if (bonusGrid) {
+        bonusGrid.innerHTML = '';
+        for (let i = 1; i <= 39; i++) {
+          const isSelected = AppState.winningNumbers.bonus === i;
+          const isMain = AppState.winningNumbers.main.includes(i);
+          const btn = document.createElement('button');
+          btn.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition flex items-center justify-center ${
+            isSelected ? 'bg-amber-500 text-slate-950 font-extrabold ring-2 ring-amber-300 shadow' : (isMain ? 'bg-slate-900 text-slate-600 opacity-40 cursor-not-allowed' : 'bg-slate-800 text-slate-400 hover:bg-slate-700')
+          }`;
+          btn.textContent = i;
+          btn.disabled = isMain;
+          btn.onclick = () => setBonusBall(i);
+          bonusGrid.appendChild(btn);
+        }
+      }
+
+      document.getElementById('checkerMainCountDisplay').textContent = AppState.winningNumbers.main.length;
+      document.getElementById('checkerBonusStatusDisplay').textContent = AppState.winningNumbers.bonus !== null ? `Ball ${AppState.winningNumbers.bonus}` : 'None';
+    }
+
+    function toggleCheckerMainBall(num) {
+      const idx = AppState.winningNumbers.main.indexOf(num);
+      if (idx > -1) {
+        AppState.winningNumbers.main.splice(idx, 1);
+      } else {
+        if (AppState.winningNumbers.main.length >= 6) {
+          showToast('Maximum 6 main drawn balls allowed.');
+          return;
+        }
+        if (AppState.winningNumbers.bonus === num) {
+          AppState.winningNumbers.bonus = null;
+        }
+        AppState.winningNumbers.main.push(num);
+        AppState.winningNumbers.main.sort((a, b) => a - b);
+      }
+      playSound('ball');
+      renderCheckerGrids();
+      updateCheckerScorecard();
+      renderStraightLines();
+      renderComboLines();
+      updateStateJSONEditor();
+    }
+
+    function setBonusBall(num) {
+      if (AppState.winningNumbers.main.includes(num)) {
+        showToast(`Ball ${num} is already chosen as a main winning number.`);
+        return;
+      }
+      AppState.winningNumbers.bonus = (AppState.winningNumbers.bonus === num) ? null : num;
+      playSound('ball');
+      renderCheckerGrids();
+      updateCheckerScorecard();
+      renderStraightLines();
+      renderComboLines();
+      updateStateJSONEditor();
+    }
+
+    function clearBonusBall() {
+      AppState.winningNumbers.bonus = null;
+      playSound('click');
+      renderCheckerGrids();
+      updateCheckerScorecard();
+      renderStraightLines();
+      renderComboLines();
+      updateStateJSONEditor();
+    }
+
+    function simulateRandomDraw() {
+      const pool = Array.from({length: 39}, (_, i) => i + 1);
+      const drawnMain = [];
+      for (let i = 0; i < 6; i++) {
+        const rnd = Math.floor(Math.random() * pool.length);
+        drawnMain.push(pool.splice(rnd, 1)[0]);
+      }
+      const rndBonus = pool[Math.floor(Math.random() * pool.length)];
+
+      AppState.winningNumbers.main = drawnMain.sort((a, b) => a - b);
+      AppState.winningNumbers.bonus = rndBonus;
+
+      playSound('complete');
+      renderCheckerGrids();
+      updateCheckerScorecard();
+      renderStraightLines();
+      renderComboLines();
+      updateStateJSONEditor();
+      showToast('Simulated complete Daily Million Draw: 6 Main + 1 Bonus!');
+    }
+
+    function clearWinningNumbers() {
+      AppState.winningNumbers.main = [];
+      AppState.winningNumbers.bonus = null;
+      playSound('click');
+      renderCheckerGrids();
+      updateCheckerScorecard();
+      renderStraightLines();
+      renderComboLines();
+      updateStateJSONEditor();
+      showToast('Cleared draw winning numbers');
+    }
+
+    function updateCheckerScorecard() {
+      const hasMain = AppState.winningNumbers.main && AppState.winningNumbers.main.length > 0;
+      const banner = document.getElementById('activeCheckerBanner');
+      const indicator = document.getElementById('checkerActiveIndicator');
+      const activeBallsRow = document.getElementById('checkerActiveBallsRow');
+      const bannerBalls = document.getElementById('bannerWinningBallsContainer');
+
+      if (hasMain) {
+        banner.classList.remove('hidden');
+        indicator.classList.remove('hidden');
+        document.getElementById('bannerDrawModeLabel').textContent = AppState.drawMode === 'bonus7' ? '7-Ball Check' : '6-Ball Check';
+
+        // Render balls in banner & scorecard
+        const makeBallsHTML = (container) => {
+          container.innerHTML = '';
+          AppState.winningNumbers.main.forEach(n => {
+            const b = document.createElement('span');
+            b.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-full text-xs font-bold text-white flex items-center justify-center ${getBallColorClass(n)}`;
+            b.textContent = n;
+            container.appendChild(b);
+          });
+          if (AppState.winningNumbers.bonus !== null) {
+            const bonusTag = document.createElement('span');
+            bonusTag.className = 'w-7 h-7 sm:w-8 sm:h-8 rounded-full text-xs font-bold text-white flex items-center justify-center lottery-ball-bonus ring-2 ring-amber-400';
+            bonusTag.title = 'Bonus Ball';
+            bonusTag.textContent = AppState.winningNumbers.bonus;
+            container.appendChild(bonusTag);
+          }
+        };
+
+        if (activeBallsRow) makeBallsHTML(activeBallsRow);
+        if (bannerBalls) makeBallsHTML(bannerBalls);
+      } else {
+        banner.classList.add('hidden');
+        indicator.classList.add('hidden');
+        if (activeBallsRow) {
+          activeBallsRow.innerHTML = '<span class="text-xs text-slate-500 italic">No winning balls selected yet. Pick numbers or click "Simulate Random Draw".</span>';
+        }
+      }
+
+      // Compute hits
+      const straightLines = AppState.generatedStraightLines || [];
+      const comboLines = AppState.generatedComboLines || [];
+
+      let straightWinners = 0;
+      straightLines.forEach(l => {
+        let matches = 0;
+        l.forEach(num => { if (isWinningMatch(num).hit) matches++; });
+        if (hasMain && matches === l.length) straightWinners++;
+      });
+
+      let comboWinners = 0;
+      comboLines.forEach(l => {
+        let matches = 0;
+        l.forEach(num => { if (isWinningMatch(num).hit) matches++; });
+        if (hasMain && matches === l.length) comboWinners++;
+      });
+
+      const totalLines = straightLines.length + comboLines.length;
+      const totalWinners = straightWinners + comboWinners;
+
+      document.getElementById('statStraightTotal').textContent = straightLines.length;
+      document.getElementById('statStraightWinners').textContent = `${straightWinners} Winning Lines`;
+      document.getElementById('statComboTotal').textContent = comboLines.length;
+      document.getElementById('statComboWinners').textContent = `${comboWinners} Winning Lines`;
+      document.getElementById('statTotalWinners').textContent = totalWinners;
+      document.getElementById('statWinPercentage').textContent = totalLines > 0 ? `${((totalWinners / totalLines) * 100).toFixed(1)}% Hit Rate` : '0.0% Win Rate';
+
+      const statusBadge = document.getElementById('checkerOverallStatusBadge');
+      if (statusBadge) {
+        if (!hasMain) {
+          statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-slate-700 text-slate-300';
+          statusBadge.textContent = 'Awaiting Draw Numbers';
+        } else if (totalWinners > 0) {
+          statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-slate-950 shadow animate-pulse';
+          statusBadge.textContent = `🎉 ${totalWinners} Winning Bets Hit!`;
+        } else {
+          statusBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          statusBadge.textContent = 'Active (No Winning Bets)';
+        }
+      }
+    }
+
+    /* Master Pool Filter Logic */
+    function renderMasterBallsMatrix() {
+      const container = document.getElementById('masterBallsMatrix');
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let i = 1; i <= 39; i++) {
+        const isActive = AppState.activePoolBalls.includes(i);
+        const btn = document.createElement('button');
+        btn.className = `w-8 h-8 sm:w-9 sm:h-9 rounded-xl text-xs font-bold transition flex items-center justify-center ${
+          isActive ? 'bg-emerald-600 text-white shadow-md ring-1 ring-emerald-400' : 'bg-slate-800 text-slate-500 opacity-60 hover:opacity-90'
+        }`;
+        btn.textContent = i;
+        btn.onclick = () => toggleMasterPoolBall(i);
+        container.appendChild(btn);
+      }
+      document.getElementById('activePoolBadge').textContent = `${AppState.activePoolBalls.length} Active`;
+      const straightActiveEl = document.getElementById('straightActiveCountDisplay');
+      if (straightActiveEl) straightActiveEl.textContent = AppState.activePoolBalls.length;
+    }
+
+    function toggleMasterPoolBall(num) {
+      const idx = AppState.activePoolBalls.indexOf(num);
+      if (idx > -1) {
+        AppState.activePoolBalls.splice(idx, 1);
+      } else {
+        AppState.activePoolBalls.push(num);
+        AppState.activePoolBalls.sort((a, b) => a - b);
+      }
+      playSound('ball');
+      renderMasterBallsMatrix();
+      updateStateJSONEditor();
+    }
+
+    function poolSelectAll() {
+      AppState.activePoolBalls = Array.from({length: 39}, (_, i) => i + 1);
+      playSound('click');
+      renderMasterBallsMatrix();
+      updateStateJSONEditor();
+    }
+
+    function poolSelectNone() {
+      AppState.activePoolBalls = [];
+      playSound('click');
+      renderMasterBallsMatrix();
+      updateStateJSONEditor();
+    }
+
+    function poolSelectEvens() {
+      AppState.activePoolBalls = Array.from({length: 39}, (_, i) => i + 1).filter(n => n % 2 === 0);
+      playSound('click');
+      renderMasterBallsMatrix();
+      updateStateJSONEditor();
+    }
+
+    function poolSelectOdds() {
+      AppState.activePoolBalls = Array.from({length: 39}, (_, i) => i + 1).filter(n => n % 2 !== 0);
+      playSound('click');
+      renderMasterBallsMatrix();
+      updateStateJSONEditor();
+    }
+
+    function poolSelectLow() {
+      AppState.activePoolBalls = Array.from({length: 19}, (_, i) => i + 1);
+      playSound('click');
+      renderMasterBallsMatrix();
+      updateStateJSONEditor();
+    }
+
+    function poolSelectHigh() {
+      AppState.activePoolBalls = Array.from({length: 20}, (_, i) => i + 20);
+      playSound('click');
+      renderMasterBallsMatrix();
+      updateStateJSONEditor();
+    }
+
+    function poolInvert() {
+      const inverted = [];
+      for (let i = 1; i <= 39; i++) {
+        if (!AppState.activePoolBalls.includes(i)) inverted.push(i);
+      }
+      AppState.activePoolBalls = inverted;
+      playSound('click');
+      renderMasterBallsMatrix();
+      updateStateJSONEditor();
+    }
+
+    /* Custom Unique Lists Logic */
+    function renderSavedLists() {
+      const container = document.getElementById('savedListsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (AppState.customLists.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs italic">No custom unique lists created yet.</div>';
+        return;
+      }
+
+      AppState.customLists.forEach((list) => {
+        const card = document.createElement('div');
+        card.className = 'p-3 bg-slate-900/80 border border-slate-700/80 rounded-xl space-y-2';
+
+        const topRow = document.createElement('div');
+        topRow.className = 'flex items-center justify-between';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'flex items-center gap-2';
+        const nameBadge = document.createElement('span');
+        nameBadge.className = 'font-bold text-xs text-purple-300';
+        nameBadge.textContent = list.name;
+        const countBadge = document.createElement('span');
+        countBadge.className = 'text-[10px] text-slate-400 font-mono';
+        countBadge.textContent = `(${list.numbers.length} balls)`;
+        titleDiv.appendChild(nameBadge);
+        titleDiv.appendChild(countBadge);
+
+        const actions = document.createElement('div');
+        actions.className = 'flex items-center gap-1';
+
+        const loadToComboBtn = document.createElement('button');
+        loadToComboBtn.className = 'px-2 py-0.5 bg-teal-900/60 hover:bg-teal-800 text-teal-300 rounded text-[10px] font-medium';
+        loadToComboBtn.textContent = 'Use in Wheel';
+        loadToComboBtn.onclick = () => {
+          AppState.comboAnchorBalls = [...list.numbers].sort((a, b) => a - b);
+          renderComboBallsGrid();
+          recalculateComboStats();
+          switchMainTab('combos');
+          showToast(`Loaded "${list.name}" into combinations wheel`);
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'p-1 text-slate-500 hover:text-rose-400 transition';
+        deleteBtn.innerHTML = '<span class="material-symbols-outlined text-sm">delete</span>';
+        deleteBtn.onclick = () => deleteCustomList(list.id);
+
+        actions.appendChild(loadToComboBtn);
+        actions.appendChild(deleteBtn);
+
+        topRow.appendChild(titleDiv);
+        topRow.appendChild(actions);
+
+        const ballsRow = document.createElement('div');
+        ballsRow.className = 'flex flex-wrap gap-1';
+        list.numbers.forEach(num => {
+          const ball = document.createElement('span');
+          ball.className = `w-6 h-6 rounded-full text-[11px] font-bold text-white flex items-center justify-center ${getBallColorClass(num)}`;
+          ball.textContent = num;
+          ballsRow.appendChild(ball);
+        });
+
+        card.appendChild(topRow);
+        card.appendChild(ballsRow);
+        container.appendChild(card);
+      });
+    }
+
+    function quickFillListWithRandom(count) {
+      const pool = Array.from({length: 39}, (_, i) => i + 1);
+      const chosen = [];
+      for (let i = 0; i < count; i++) {
+        const rnd = Math.floor(Math.random() * pool.length);
+        chosen.push(pool.splice(rnd, 1)[0]);
+      }
+      document.getElementById('customListNumbers').value = chosen.sort((a, b) => a - b).join(', ');
+      playSound('click');
+    }
+
+    function saveCustomList() {
+      const nameInput = document.getElementById('customListName');
+      const numInput = document.getElementById('customListNumbers');
+      const name = nameInput.value.trim() || 'My Unique List';
+      
+      const rawNums = numInput.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 39);
+      const uniqueNums = Array.from(new Set(rawNums)).sort((a, b) => a - b);
+
+      if (uniqueNums.length === 0) {
+        showToast('Please enter at least 1 valid number between 1 and 39.');
+        return;
+      }
+
+      const newList = {
+        id: 'list-' + Date.now(),
+        name: name,
+        numbers: uniqueNums
+      };
+
+      AppState.customLists.unshift(newList);
+      nameInput.value = '';
+      numInput.value = '';
+      playSound('complete');
+      renderSavedLists();
+      updateStateJSONEditor();
+      showToast(`Created custom list: "${newList.name}"`);
+    }
+
+    function deleteCustomList(id) {
+      AppState.customLists = AppState.customLists.filter(l => l.id !== id);
+      playSound('click');
+      renderSavedLists();
+      updateStateJSONEditor();
+      showToast('List removed');
+    }
+
+    /* Saved History / Slips Logic */
+    function renderSavedHistory() {
+      const container = document.getElementById('savedTicketsContainer');
+      const countBadge = document.getElementById('savedHistoryCountBadge');
+      if (!container) return;
+      container.innerHTML = '';
+      countBadge.textContent = `${AppState.savedHistory.length} saved`;
+
+      if (AppState.savedHistory.length === 0) {
+        container.innerHTML = '<div class="text-center py-12 text-slate-500 text-sm italic">No tickets saved in history.</div>';
+        return;
+      }
+
+      AppState.savedHistory.forEach((ticket, tIdx) => {
+        const card = document.createElement('div');
+        card.className = 'p-3.5 bg-slate-900 border border-slate-700/80 rounded-xl space-y-2.5';
+
+        const top = document.createElement('div');
+        top.className = 'flex items-center justify-between text-xs border-b border-slate-800 pb-2';
+        
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'font-bold text-emerald-400 flex items-center gap-1';
+        typeBadge.innerHTML = `<span class="material-symbols-outlined text-sm">receipt_long</span> ${ticket.type}`;
+        
+        const timeMeta = document.createElement('span');
+        timeMeta.className = 'text-slate-500 font-mono';
+        timeMeta.textContent = `${ticket.date} (${ticket.drawMode === 'bonus7' ? '7-Ball' : '6-Ball'})`;
+
+        top.appendChild(typeBadge);
+        top.appendChild(timeMeta);
+
+        const linesContainer = document.createElement('div');
+        linesContainer.className = 'space-y-1 max-h-32 overflow-y-auto pr-1 text-xs font-mono';
+        ticket.lines.forEach((l, lIdx) => {
+          const lRow = document.createElement('div');
+          lRow.className = 'flex items-center justify-between text-slate-300 py-0.5 px-2 bg-slate-950/60 rounded';
+          lRow.innerHTML = `<span>Line ${lIdx + 1}:</span> <span class="font-bold text-slate-100">${l.join(', ')}</span>`;
+          linesContainer.appendChild(lRow);
+        });
+
+        const bottom = document.createElement('div');
+        bottom.className = 'flex justify-end gap-2 pt-1';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px]';
+        copyBtn.textContent = 'Copy Lines';
+        copyBtn.onclick = () => {
+          const txt = ticket.lines.map((l, idx) => `Line ${idx + 1}: ${l.join(', ')}`).join('\n');
+          copyTextToClipboard(txt);
+          showToast(`Copied ticket slip #${tIdx + 1}`);
+        };
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'px-2 py-1 bg-rose-950/40 hover:bg-rose-900 text-rose-300 rounded text-[11px]';
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = () => {
+          AppState.savedHistory.splice(tIdx, 1);
+          renderSavedHistory();
+          updateStateJSONEditor();
+        };
+
+        bottom.appendChild(copyBtn);
+        bottom.appendChild(delBtn);
+
+        card.appendChild(top);
+        card.appendChild(linesContainer);
+        card.appendChild(bottom);
+        container.appendChild(card);
+      });
+    }
+
+    function clearHistory() {
+      AppState.savedHistory = [];
+      playSound('click');
+      renderSavedHistory();
+      updateStateJSONEditor();
+      showToast('Cleared ticket history');
+    }
+
+    /* JSON State Editor & Persistence */
+    function updateStateJSONEditor() {
+      const textarea = document.getElementById('jsonStateTextarea');
+      if (textarea) {
+        textarea.value = JSON.stringify(AppState, null, 2);
+      }
+    }
+
+    function applyStateFromJSON() {
+      const textarea = document.getElementById('jsonStateTextarea');
+      try {
+        const parsed = JSON.parse(textarea.value);
+        if (typeof parsed !== 'object' || parsed === null) {
+          throw new Error('Invalid JSON format');
+        }
+        Object.assign(AppState, parsed);
+        initUIFromState();
+        playSound('complete');
+        showToast('Application state successfully updated from JSON!');
+      } catch (err) {
+        showToast('Error parsing JSON state: ' + err.message);
+      }
+    }
+
+    function exportStateJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `irish-daily-million-state-${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('State exported as JSON file');
+    }
+
+    function copyStateJSON() {
+      const text = JSON.stringify(AppState, null, 2);
+      copyTextToClipboard(text);
+      showToast('JSON state copied to clipboard');
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const contents = e.target.result;
+          const parsed = JSON.parse(contents);
+          Object.assign(AppState, parsed);
+          initUIFromState();
+          showToast(`Imported state from file: ${file.name}`);
+          playSound('complete');
+        } catch (err) {
+          showToast('Failed to parse uploaded JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /* Clipboard Copy Helper */
+    function copyTextToClipboard(text) {
+      const tempTextarea = document.createElement('textarea');
+      tempTextarea.value = text;
+      tempTextarea.style.position = 'fixed';
+      tempTextarea.style.opacity = '0';
+      document.body.appendChild(tempTextarea);
+      tempTextarea.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {
+        // Fail gracefully
+      }
+      document.body.removeChild(tempTextarea);
+    }
+
+    function resetAllDefaults() {
+      AppState.drawMode = 'main6';
+      AppState.audioEnabled = true;
+      AppState.straightPickCount = 3;
+      AppState.straightLineCount = 5;
+      AppState.straightSortOrder = 'asc';
+      AppState.straightPoolSource = 'all';
+      AppState.activePoolBalls = Array.from({length: 39}, (_, i) => i + 1);
+      AppState.comboPickSize = 3;
+      AppState.comboAnchorBalls = [3, 7, 14, 21, 28, 35];
+      AppState.generatedStraightLines = [];
+      AppState.generatedComboLines = [];
+      AppState.winningNumbers = { main: [], bonus: null };
+      initUIFromState();
+      playSound('click');
+      showToast('Reset all configurations to default');
+    }
+
+    function initUIFromState() {
+      // Set draw mode radio
+      const drawRadios = document.getElementsByName('drawMode');
+      drawRadios.forEach(r => {
+        r.checked = (r.value === AppState.drawMode);
+      });
+
+      // Sound icon & button
+      const soundIcon = document.getElementById('soundIcon');
+      const soundBtn = document.getElementById('soundToggleBtn');
+      if (soundIcon && soundBtn) {
+        soundIcon.textContent = AppState.audioEnabled ? 'volume_up' : 'volume_off';
+        soundBtn.className = `px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all bg-slate-700 hover:bg-slate-600 ${AppState.audioEnabled ? 'text-slate-300' : 'text-slate-500'} flex items-center`;
+      }
+
+      // Input fields
+      const lineCountInput = document.getElementById('straightLineCount');
+      if (lineCountInput) lineCountInput.value = AppState.straightLineCount || 5;
+
+      const sortOrderSelect = document.getElementById('straightSortOrder');
+      if (sortOrderSelect) sortOrderSelect.value = AppState.straightSortOrder || 'asc';
+
+      const poolSourceSelect = document.getElementById('straightPoolSource');
+      if (poolSourceSelect) poolSourceSelect.value = AppState.straightPoolSource || 'all';
+
+      setStraightPickCount(AppState.straightPickCount || 3);
+      setComboPickSize(AppState.comboPickSize || 3);
+
+      renderStraightLines();
+      renderComboLines();
+      renderMasterBallsMatrix();
+      renderComboBallsGrid();
+      renderCheckerGrids();
+      updateCheckerScorecard();
+      renderSavedLists();
+      renderSavedHistory();
+      recalculateComboStats();
+      updateOddsDisplay();
+      updateStateJSONEditor();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initUIFromState();
+    });
+  </script>
+</body>
+</html>

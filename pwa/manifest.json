@@ -1,0 +1,22 @@
+{
+  "short_name": "Irish Daily Million",
+  "name": "irish-daily-million-picker",
+  "icons": [
+    {
+      "src": "/irish-daily-million-picker/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/irish-daily-million-picker/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "https://salivity.github.io/irish-daily-million-picker",
+  "background_color": "#F0F4F8",
+  "theme_color": "#F0F4F8",
+  "display": "standalone",
+  "orientation": "portrait"
+}
